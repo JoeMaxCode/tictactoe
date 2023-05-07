@@ -47,6 +47,8 @@ class Board:
 	def check_empty(self, rows, cols):
 		if self.saved_marks[rows][cols] == 0:
 			return True
+		else: 
+			return False
 
 	# Check if there is a tie
 	def check_tie(self, row, col):
@@ -171,6 +173,7 @@ class Game:
 				
 		self.board.marks(row, col, player)
 		player = self.board.change_player(player)
+		print(self.board.saved_marks)
 
 	def show_winner(self, player, game_state):
 		# Shows the winner in the middle of the screen 
@@ -228,13 +231,13 @@ class Game:
 		if self.board.get_winner(row, col, self.player): 
 			self.show_winner(self.player, 0)
 			self.replay_display()
-			run = self.replay(run)
+			run = self.replay()
 			if run:
 				self.restart()
 		elif self.board.check_tie(row, col):
 			self.show_winner(self.player, 1)
 			self.replay_display()
-			run = self.replay(run)
+			run = self.replay()
 			if run:
 				self.board.change_player(self.player)
 				self.restart()
@@ -264,10 +267,11 @@ class Game:
 		self.quit_rect = self.quit.get_rect(center=(255, 320))
 		WIN.blit(self.quit, self.quit_rect)
 
-	def replay(self, run):
+	def replay(self):
 		# After a game, player can choose play again or quit the game
 		pygame.display.update()
 		loop = True
+		global run
 		while loop:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -287,7 +291,7 @@ class Game:
 
 	def restart(self):
 		self.board.saved_marks = np.zeros((rows, cols))
-		self.start_game()
+		self.start_game() 
 		
 class Menu:
 	def __init__(self):
@@ -391,9 +395,10 @@ def main():
 				col = pos[0] // SQUARESPACE
 
 				# Check if space chosen is empty
-				if board.check_empty(row, col):
+				if not board.check_empty(row, col) == False:
 					game.update_screen(pos, row, col)
-		
+				else:
+					print('hi')
 					
 
 
