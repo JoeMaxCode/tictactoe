@@ -358,22 +358,6 @@ class Menu:
 		
 		click_sound.play()
 
-
-
-						
-
-
-
-
-
-
-
-
-
-
-
-
-	
 # Main loop
 run = True
 def main():
@@ -395,7 +379,7 @@ def main():
 				col = pos[0] // SQUARESPACE
 
 				# Check if space chosen is empty
-				if not board.check_empty(row, col) == False:
+				if board.check_empty(row, col) == True:
 					game.update_screen(pos, row, col)
 				else:
 					print('hi')
