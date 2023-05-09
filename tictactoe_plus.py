@@ -40,19 +40,19 @@ class Board:
 				centerY.append(self.middle_x+SQUARESPACE*2)
 
 	# Saves the inputs made by the user on the board
-	def marks(self, rows, cols, player):
-		self.saved_marks[rows][cols] = player
+	def marks(self, rows, cols, player, saved_marks):
+		saved_marks[rows][cols] = player
 
 	# Checks if the square the user chose is empty, if empty, returns true
-	def check_empty(self, rows, cols):
-		if self.saved_marks[rows][cols] == 0:
+	def check_empty(self, rows, cols, saved_marks):
+		if saved_marks[rows][cols] == 0:
 			return True
 		else: 
 			return False
 
 	# Check if there is a tie
-	def check_tie(self, row, col):
-		for lst in self.saved_marks:
+	def check_tie(self, row, col, saved_marks):
+		for lst in saved_marks:
 			for value in lst:
 				if value == 0:
 					return False
@@ -60,57 +60,57 @@ class Board:
 
 
 	# Check who won
-	def get_winner(self, row, col, player):
+	def get_winner(self, row, col, player, saved_marks):
 		# Check if its a horizontal win
 		if col == 0:
-			if (self.saved_marks[row][col+1] == player and
-		 	self.saved_marks[row][col+2] == player):
+			if (saved_marks[row][col+1] == player and
+		 	saved_marks[row][col+2] == player):
 				return True
 		elif col == 1:
-			if (self.saved_marks[row][col-1] == player and
-		 	self.saved_marks[row][col+1] == player):
+			if (saved_marks[row][col-1] == player and
+		 	saved_marks[row][col+1] == player):
 		 	 	return True
 		elif col == 2:
-			if (self.saved_marks[row][col-1] == player and
-		 	self.saved_marks[row][col-2] == player):
+			if (saved_marks[row][col-1] == player and
+		 	saved_marks[row][col-2] == player):
 		 		return True
 		# Check if its a vertical win
 		if row == 0:
-			if (self.saved_marks[row+1][col] == player and
-		 	self.saved_marks[row+2][col] == player):
+			if (saved_marks[row+1][col] == player and
+		 	saved_marks[row+2][col] == player):
 		 		return True
 		elif row == 1:
-			if (self.saved_marks[row-1][col] == player and
-		 	self.saved_marks[row+1][col] == player):
+			if (saved_marks[row-1][col] == player and
+		 	saved_marks[row+1][col] == player):
 		 		return True
 		elif row == 2:
-		 	if (self.saved_marks[row-1][col] == player and
-		 	self.saved_marks[row-2][col] == player):
+		 	if (saved_marks[row-1][col] == player and
+		 	saved_marks[row-2][col] == player):
 		 		return True
 
 		 # Check if its a diagonal win
 		if row == 0 and col == 0:
-			if (self.saved_marks[row+1][col+1] == player and
-		 	self.saved_marks[row+2][col+2] == player):
+			if (saved_marks[row+1][col+1] == player and
+		 	saved_marks[row+2][col+2] == player):
 		 		return True
 		elif row == 1 and col == 1: # Two possibilities here
-			if (self.saved_marks[row-1][col-1] == player and
-		 	self.saved_marks[row+1][col+1] == player):
+			if (saved_marks[row-1][col-1] == player and
+		 	saved_marks[row+1][col+1] == player):
 		 		return True
-			elif (self.saved_marks[row-1][col+1] == player and
-		 	self.saved_marks[row+1][col-1] == player):
+			elif (saved_marks[row-1][col+1] == player and
+		 	saved_marks[row+1][col-1] == player):
 		 		return True
 		elif row == 2 and col == 2:
-			if (self.saved_marks[row-1][col-1] == player and
-		 	self.saved_marks[row-2][col-2] == player):
+			if (saved_marks[row-1][col-1] == player and
+		 	saved_marks[row-2][col-2] == player):
 		 		return True
 		elif row == 0 and col == 2:
-			if (self.saved_marks[row+1][col-1] == player and
-		 	self.saved_marks[row+2][col-2] == player):
+			if (saved_marks[row+1][col-1] == player and
+		 	saved_marks[row+2][col-2] == player):
 		 		return True
 		elif row == 2 and col == 0:
-			if (self.saved_marks[row-1][col+1] == player and
-		 	self.saved_marks[row-2][col+2] == player):
+			if (saved_marks[row-1][col+1] == player and
+		 	saved_marks[row-2][col+2] == player):
 		 		return True
 
 	def change_player(self, player):
@@ -159,7 +159,7 @@ class Game:
 		self.coor_y = centerY[min(range(len(centerY)), key=lambda i: abs(centerY[i]-pos[1]))]
 
 	# Shows on the screen the move made by player X or O
-	def show_mark(self, pos, player, row, col):
+	def show_mark(self, pos, player, row, col, saved_marks):
 		click_sound.play()
 		self.closest_click(pos)
 		# If player is X 
@@ -171,9 +171,8 @@ class Game:
 			self.circle_rect = circle.get_rect(center = (self.coor_x, self.coor_y))
 			WIN.blit(circle, (self.circle_rect))
 				
-		self.board.marks(row, col, player)
+		self.board.marks(row, col, player, saved_marks)
 		player = self.board.change_player(player)
-		print(self.board.saved_marks)
 
 	def show_winner(self, player, game_state):
 		# Shows the winner in the middle of the screen 
@@ -221,28 +220,33 @@ class Game:
 		 True, RED)
 		WIN.blit(self.scores, (WIDTH-SQUARESPACE+13, 2))
 
-	def update_screen(self, pos, row, col):
+	def update_screen(self, pos, row, col, saved_marks):
 		# Saves the spot that the player chose
 		# Shows the mark on the screen
 		# Checks if there is a winner
 
-		self.show_mark(pos, self.player, row, col)
+		self.show_mark(pos, self.player, row, col, saved_marks)
 		global run
-		if self.board.get_winner(row, col, self.player): 
+		if self.board.get_winner(row, col, self.player, saved_marks): 
 			self.show_winner(self.player, 0)
 			self.replay_display()
 			run = self.replay()
 			if run:
-				self.restart()
-		elif self.board.check_tie(row, col):
+				self.board.change_player(self.player)
+				saved_marks = self.restart(saved_marks)
+				self.start_game()
+
+		elif self.board.check_tie(row, col, saved_marks):
 			self.show_winner(self.player, 1)
 			self.replay_display()
 			run = self.replay()
 			if run:
 				self.board.change_player(self.player)
-				self.restart()
+				saved_marks = self.restart(saved_marks)
+				self.start_game() 
 		
 		self.player = self.board.change_player(self.player)
+		return saved_marks
 		
 	def replay_display(self):
 		# After a game, this method will display an option to play again or quit the game
@@ -289,9 +293,9 @@ class Game:
 						loop = False
 						return run
 
-	def restart(self):
-		self.board.saved_marks = np.zeros((rows, cols))
-		self.start_game() 
+	def restart(self, saved_marks):
+		saved_marks = np.zeros((rows, cols))
+		return saved_marks
 		
 class Menu:
 	def __init__(self):
@@ -379,10 +383,9 @@ def main():
 				col = pos[0] // SQUARESPACE
 
 				# Check if space chosen is empty
-				if board.check_empty(row, col) == True:
-					game.update_screen(pos, row, col)
-				else:
-					print('hi')
+				if board.check_empty(row, col, board.saved_marks) == True:
+					board.saved_marks = game.update_screen(pos, row, col, board.saved_marks)
+				
 					
 
 
